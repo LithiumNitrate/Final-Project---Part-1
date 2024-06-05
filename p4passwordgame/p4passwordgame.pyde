@@ -1,58 +1,166 @@
+
 password = []
 max_chars_per_line = 28
 line_height = 40  # Adjust this value to the desired line spacing
 
-#SCROLLABLE BOX
+#------------------------ SCROLLABLE BOX --------------------------------
 class ScrollableBox:
-    def __init__(self, x, y, w, h, content_funcs, line_height=30):
+    def __init__(self, x, y, w, h, content_funcs, content_heights):
         self.x = x
         self.y = y
         self.w = w
         self.h = h
         self.content_funcs = content_funcs
+        self.content_heights = content_heights
         self.scroll_offset = 0
-        self.line_height = line_height
-        self.visible_lines = int(h / line_height)
+        self.visible_height = h
         
     def display(self):
         fill(255, 165, 0)
-        rect(self.x, self.y, self.w, self.h)
+        rect(self.x, self.y, self.w, self.h, 15)
         clip(self.x, self.y, self.w, self.h)  # Restrict drawing to the box area
         fill(0)
         textSize(16)
         textAlign(LEFT, TOP)
-        start_line = int(self.scroll_offset / self.line_height)
-        end_line = start_line + self.visible_lines
         
-        for i in range(start_line, min(end_line, len(self.content_funcs))):
-            func = self.content_funcs[i]
-            func(self.x + 10, self.y + 10 + (i - start_line) * self.line_height)
+        current_y = self.y + 10 - self.scroll_offset
+        
+        for i in range(len(self.content_funcs)):
+            if current_y + self.content_heights[i] > self.y and current_y < self.y + self.h:
+                func = self.content_funcs[i]
+                func(self.x + 10, current_y)
+            current_y += self.content_heights[i]
+        
         noClip()  # Reset clipping
 
     def scroll(self, direction):
-        self.scroll_offset += direction * self.line_height
-        self.scroll_offset = constrain(self.scroll_offset, 0, max(0, len(self.content_funcs) * self.line_height - self.h))
-
+        self.scroll_offset += direction * 30  # Adjust this value for scrolling speed
+        total_content_height = sum(self.content_heights)
+        self.scroll_offset = constrain(self.scroll_offset, 0, max(0, total_content_height - self.visible_height))
 
 scrollable_box = None
 
-def content1(x, y):
+# ------------------- RULES ------------------------
+# Example content functions
+def rule1(x, y):
+    text_content = "The Password must contain more than 8 characters"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
     fill(0)
-    text("This is content line 1.", x, y)
+    text(text_content, x + 30, y + 20)
+    return rect_h
 
-def content2(x, y):
+def rule2(x, y):
+    text_content = "The Password must contain more Paul"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
     fill(0)
-    text("This is content line 2.", x, y)
+    text(text_content, x + 30, y + 20)
+    return rect_h
 
-def content3(x, y):
+def rule3(x, y):
+    text_content = "The Password must eat shit"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
     fill(0)
-    text("This is content line 3.", x, y)
+    text(text_content, x + 30, y + 20)
+    return rect_h
 
-def content4(x, y):
+def rule4(x, y):
+    text_content = "IMMA KMS"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
     fill(0)
-    text("This is content line 4.", x, y)
+    text(text_content, x + 30, y + 20)
+    return rect_h
+
+def rule5(x, y):
+    text_content = "IMMA KMS"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
+    fill(0)
+    text(text_content, x + 30, y + 20)
+    return rect_h
+
+def rule6(x, y):
+    text_content = "IMMA KMS"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
+    fill(0)
+    text(text_content, x + 30, y + 20)
+    return rect_h
+
+def rule7(x, y):
+    text_content = "IMMA KMS"
+    rect_w = 850
+    rect_h = 50
+    fill(255)
+    rect(x, y, rect_w, rect_h, 15)
+    fill(0)
+    text(text_content, x + 30, y + 20)
+    return rect_h
+
+def content_with_tree(x, y):
+    global branch
+    # Draw a rectangle for background
+    rect_w = 620  # Fixed width for the tree drawing area
+    rect_h = 360  # Fixed height for the tree drawing area
+    fill(255)
+    rect(x, y, rect_w, rect_h)
+    
+    # Set up for drawing the tree inside this rectangle
+    pushMatrix()
+    translate(x + rect_w / 2, y + rect_h)  # Translate to bottom center of the rectangle
+    a = (mouseX / float(width)) * 90
+    theta = radians(a)
+    stroke(0)
+    branch(120, theta)
+    popMatrix()
+    
+    return rect_h
+
+def branch(h, theta):
+    # Each branch will be 2/3rds the size of the previous one
+    h *= 0.66
+    # All recursive functions must have an exit condition
+    if h > 2:
+        # Save the current state of transformation
+        pushMatrix()
+        rotate(theta)
+        line(0, 0, 0, -h)
+        translate(0, -h)
+        branch(h, theta)
+        popMatrix()
+        pushMatrix()
+        rotate(-theta)
+        line(0, 0, 0, -h)
+        translate(0, -h)
+        branch(h, theta)
+        popMatrix()
 
 
+# -----------------------------------------------
+# ------------------- CONDITIONS ---------------------
+
+# NEED A FUNCTION TO MANAGE CONDITIONS AND RULE.
+
+# I WOULD SUGGEST TO USE A FUNCTION THAT POPS OUT CONTENT FROM CONTENT_FUNCS
+
+# CONTENT_FUNC.pop(CONTENT) if doesn't match REQUIREMENT.
+
+# THIS SHOULD BE HARD CODED AS IT CAN'T CHANGE
 
 
 #---------------------------- GAME PLAY LOOP ----------------------------------
@@ -60,21 +168,22 @@ def content4(x, y):
 
 
 def setup():
-    global scrollable_box
+    global scrollable_box, content_funcs
     size(1200, 600)
     frameRate(30)
     
     # Load and set the font
-    global font
-    font = loadFont("Charter-Roman-48.vlw")
-    textFont(font, 28)
+    # global font
+    # font = loadFont("Charter-Roman-48.vlw")
+    # textFont(font, 28)
     
         # Sample content
-    content_funcs = [content1, content2, content3, content4] * 10  # Repeat to have enough content to scroll
-    
+    content_funcs = [rule1, rule2, rule3, rule4, rule5, rule6, rule7, content_with_tree]  # IF THIS INPUT IS WRONG. WHOLE FCKING CODE BREAKS. USE WITH CAUTION.
+    # Calculate the heights of all content
+    content_heights = [func(0, 0) for func in content_funcs]  # Call each function to get its height
     # Initialize ScrollableBox
-    scrollable_box = ScrollableBox(100, 350, 1000, 300, content_funcs)
-    
+    scrollable_box = ScrollableBox(100, 250, 900, 300, content_funcs, content_heights)
+ 
     
 def draw():
     global password
